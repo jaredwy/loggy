@@ -1,6 +1,6 @@
 "use strict";
 var Logger = function(logLevel) {
-	this.logLevel = logLevel;
+	this._logLevel = logLevel || Logger.level.all;
 	this._initLogger();
 	this._error = [];
 	this._warn = [];
@@ -10,6 +10,7 @@ var Logger = function(logLevel) {
 
 Logger.prototype = {
 	_initLogger : function() {
+		var that = this;
 		//stash the old function
 		var loggers = {};
 		loggers.log = console.log;
@@ -25,20 +26,48 @@ Logger.prototype = {
 		//repacment functions
 		//since there seems to be no way to walk the stack anymore
 		function log() {
-			loggers.log.apply(console,arguments);
+			if(that._logLevel & Logger.level.log ) {
+				loggers.log.apply(console,arguments);
+				persistArguments(arguments,that._log);
+			}
 		};
 		function warn() {
-			loggers.warn.apply(console,arguments);	
+			if(that._logLevel & Logger.level.warn ) {
+				loggers.warn.apply(console,arguments);	
+				persistArguments(arguments,that._warn);
+			}
+			
 		};
 		function debug() {
-			loggers.debug.apply(console,arguments);
+			if(that._logLevel & Logger.level.debug ) {
+				loggers.debug.apply(console,arguments);
+				persistArguments(arguments,that._debug);
+			}
 		};
 		function error() {
-			loggers.error.apply(console,arguments);
+			if(that._logLevel & Logger.level.error ) {
+				loggers.error.apply(console,arguments);
+				persistArguments(arguments,that._error);
+			}
 		};
 
+		function persistArguments(args,logStorage) {
+			args = Array.prototype.slice.call( args, 0 );
+			for(var i = 0; i < args.length; i++) {
+				logStorage.push(args[i]);
+			}
+		}
 	},
 	setLogLevel : function(logLevel) {
-		this.logLevel = logLevel;
+		this._logLevel = logLevel;
 	}
+}
+
+Logger.level = {
+  off : 0,
+  log: 1,
+  debug: 2,
+  warn: 4,
+  error: 8,
+  all: 15
 }
