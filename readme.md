@@ -1,6 +1,6 @@
 # Loggy
 
-Loggy is a simple javascript framework for logging using the usual console.log functions. It assumes you have a console.
+Loggy is a simple javascript framework for logging using the usual console.log functions. It provides logging levels and the ability to persist the logs. It assumes you have a console.
 
 ## Usage
 	var logger = new Logger();
