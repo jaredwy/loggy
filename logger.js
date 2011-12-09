@@ -1,4 +1,4 @@
-"use strict";
+
 var Logger = function(logLevel) {
 	this._logLevel = logLevel || Logger.level.all;
 	this._initLogger();
