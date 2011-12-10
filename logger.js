@@ -1,11 +1,11 @@
 
 var Logger = function(logLevel) {
 	this._logLevel = logLevel || Logger.level.all;
-	this._initLogger();
 	this._error = [];
 	this._warn = [];
 	this._debug = [];
 	this._log = [];
+	this._initLogger();
 }
 
 Logger.prototype = {
@@ -18,38 +18,20 @@ Logger.prototype = {
 		loggers.debug = console.debug;
 		loggers.error = console.error;
 		//set up loggers
-		console.log = log;
-		console.warn = warn;
-		console.error = error;
-		console.debug = debug;
+		console.log = logger('log',this._log);
+		console.warn = logger('warn',this._warn);
+		console.error = logger('error',this._error);
+		console.debug = logger('debug',this._debug);
 
-		//repacment functions
-		//since there seems to be no way to walk the stack anymore
-		function log() {
-			if(that._logLevel & Logger.level.log ) {
-				loggers.log.apply(console,arguments);
-				persistArguments(arguments,that._log);
+
+		function logger(name,storage) {
+			return function() {
+				if(that._logLevel & Logger.level[name] ) {
+					loggers[name].apply(console,arguments);
+					persistArguments(arguments,storage);
+				}
 			}
-		};
-		function warn() {
-			if(that._logLevel & Logger.level.warn ) {
-				loggers.warn.apply(console,arguments);	
-				persistArguments(arguments,that._warn);
-			}
-			
-		};
-		function debug() {
-			if(that._logLevel & Logger.level.debug ) {
-				loggers.debug.apply(console,arguments);
-				persistArguments(arguments,that._debug);
-			}
-		};
-		function error() {
-			if(that._logLevel & Logger.level.error ) {
-				loggers.error.apply(console,arguments);
-				persistArguments(arguments,that._error);
-			}
-		};
+		}
 
 		function persistArguments(args,logStorage) {
 			args = Array.prototype.slice.call( args, 0 );
